@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount the Docker socket so the backend can spawn sandbox containers
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mount the sandbox directory so the backend can build it if needed,
+      # though it's already built by the sandbox-builder service below.
+      - ./backend/sandbox:/app/sandbox
+    env_file:
+      - ./backend/.env
+    environment:
+      # Optional: any backend specific overrides
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - sandbox-builder
+    deploy:
+      resources:
+        limits:
+          memory: 600M
+        reservations:
+          memory: 256M
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Define where the frontend should look for the API in the browser
+        - NEXT_PUBLIC_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+        reservations:
+          memory: 128M
+
+  sandbox-builder:
+    # A dummy service to build the sandbox image during compose up
+    build:
+      context: ./backend/sandbox
+      dockerfile: Dockerfile
+    image: no-code-sandbox:latest
+    command: ["echo", "Sandbox image built"]

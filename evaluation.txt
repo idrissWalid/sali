@@ -1,0 +1,26 @@
+\textbf{Axe~2 --- Performance des modèles ML.} Pour chaque type de problème, les métriques
+de la section~2.8 sont calculées sur un jeu de test distinct, conformément au protocole
+de validation \textit{holdout}.
+
+\textbf{Axe~3 --- Robustesse au bruit.} L'agent est testé sur des versions dégradées du
+jeu de données de référence~: introduction de valeurs manquantes artificielles (10, 20 et
+30\,\%), de valeurs aberrantes aléatoires et d'erreurs de typage. La capacité à détecter
+ces anomalies et à produire malgré tout des analyses cohérentes est mesurée.
+
+\textbf{Axe~4 --- Utilisabilité.} L'outil est soumis à un panel d'utilisateurs cibles ---
+agents institutionnels non techniciens --- qui réalisent un ensemble de tâches définies et
+évaluent leur expérience selon l'échelle \textbf{SUS} (\textit{System Usability Scale}),
+dont le score global est calculé comme~:
+
+\begin{equation}
+    \mathrm{SUS} = 2{,}5 \times \sum_{j=1}^{10} s_j \quad \in [0,\, 100]
+\end{equation}
+
+où $s_j$ est le score centré de la $j$-ième question (réponse impaire~: $r_j - 1$~;
+réponse paire~: $5 - r_j$). Un score supérieur à 68 est conventionnellement considéré
+comme satisfaisant.
+
+Les chapitres posent ici les fondements méthodologiques nécessaires~: les concepts statistiques
+qui sous-tendent chaque module ont été explicités, les formules formalisées, et les choix
+algorithmiques justifiés. Le chapitre suivant met cet agent à l'épreuve sur un cas d'usage
+institutionnel concret, et évalue dans quelle mesure il tient ces promesses.

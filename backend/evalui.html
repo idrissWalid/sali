@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Évaluation Résumés — MultiEURLEX</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --ink: #0d0f14;
+            --ink2: #3a3f4e;
+            --ink3: #7a8099;
+            --bg: #f6f5f0;
+            --surface: #ffffff;
+            --surface2: #f0efe9;
+            --accent: #d4410b;
+            --accent2: #e85d28;
+            --border: rgba(0, 0, 0, .08);
+            --border2: rgba(0, 0, 0, .14);
+            --green: #1a7a4a;
+            --amber: #b06000;
+            --red: #b02020;
+            --r: 10px;
+            --font-title: 'Syne', sans-serif;
+            --font-mono: 'DM Mono', monospace;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--ink);
+            font-family: var(--font-title);
+            min-height: 100vh;
+        }
+
+        /* NAV */
+        nav {
+            background: var(--ink);
+            color: #fff;
+            padding: 0 40px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent2);
+        }
+
+        .nav-meta {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: rgba(255, 255, 255, .45);
+            letter-spacing: 1px;
+        }
+
+        /* PAGE */
+        .page {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        /* SECTION LABEL */
+        .sl {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--ink3);
+            margin-bottom: 10px;
+        }
+
+        /* HERO */
+        .hero {
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -1.5px;
+            margin-bottom: 8px;
+        }
+
+        .hero h1 em {
+            font-style: normal;
+            color: var(--accent);
+        }
+
+        .hero p {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--ink3);
+        }
+
+        /* CONFIG CARD */
+        .ccard {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 24px 28px;
+            margin-bottom: 20px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .fld label {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--ink3);
+            margin-bottom: 6px;
+        }
+
+        .fld input {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: 6px;
+            padding: 9px 12px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--ink);
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .fld input:focus {
+            border-color: var(--accent);
+        }
+
+        /* BUTTON */
+        .btn-run {
+            background: var(--ink);
+            color: #fff;
+            font-family: var(--font-title);
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 28px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background .2s, transform .1s;
+        }
+
+        .btn-run:hover {
+            background: var(--accent);
+        }
+
+        .btn-run:active {
+            transform: scale(.98);
+        }
+
+        .btn-run:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-run i {
+            font-size: 16px;
+        }
+
+        .btn-sec {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--border2);
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-family: var(--font-title);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: background .15s, border-color .15s;
+        }
+
+        .btn-sec:hover {
+            background: var(--surface2);
+            border-color: var(--ink3);
+        }
+
+        .btn-sec i {
+            font-size: 15px;
+        }
+
+        /* TERMINAL */
+        #terminal-wrap {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .term {
+            background: #0d0f14;
+            border-radius: var(--r);
+            padding: 20px 24px;
+            max-height: 260px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            line-height: 1.7;
+            color: #8a9bb5;
+        }
+
+        .term .l-ok {
+            color: #4fd68a;
+        }
+
+        .term .l-err {
+            color: #f07070;
+        }
+
+        .term .l-inf {
+            color: #7ab8f5;
+        }
+
+        .term .l-done {
+            color: #f5c542;
+            font-weight: 500;
+        }
+
+        .prog-bar {
+            height: 3px;
+            background: rgba(255, 255, 255, .08);
+            border-radius: 2px;
+            margin-bottom: 16px;
+        }
+
+        .prog-fill {
+            height: 100%;
+            background: var(--accent2);
+            border-radius: 2px;
+            transition: width .5s ease;
+        }
+
+        .prog-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: #5a6a80;
+            margin-bottom: 8px;
+        }
+
+        /* ERROR BANNER */
+        #err-banner {
+            display: none;
+            background: #fff5f5;
+            border: 1px solid #f5b5b5;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--red);
+        }
+
+        /* RESULTS */
+        #results-section {
+            display: none;
+        }
+
+        /* STAT GRID */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: var(--surface2);
+            border-radius: 8px;
+            padding: 16px 18px;
+        }
+
+        .stat-box .sv {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--ink);
+        }
+
+        .stat-box .sk {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--ink3);
+            margin-bottom: 4px;
+        }
+
+        .stat-box .sd {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--ink3);
+            margin-top: 2px;
+        }
+
+        /* METRIC BLOCK */
+        .mblock {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 22px 26px;
+            margin-bottom: 14px;
+        }
+
+        .mblock-head {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mblock-head i {
+            font-size: 16px;
+            color: var(--ink3);
+        }
+
+        .mblock-sub {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--ink3);
+            margin-bottom: 18px;
+        }
+
+        .mrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .mrow:last-child {
+            margin-bottom: 0;
+        }
+
+        .mkey {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--ink3);
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .bwrap {
+            flex: 1;
+            height: 6px;
+            background: var(--surface2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .bfill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 1s cubic-bezier(.4, 0, .2, 1);
+            width: 0;
+        }
+
+        .f-acc {
+            background: var(--accent);
+        }
+
+        .f-ink {
+            background: var(--ink2);
+        }
+
+        .mval {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 500;
+            width: 48px;
+            text-align: right;
+            color: var(--ink);
+        }
+
+        .mtag {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            padding: 2px 9px;
+            border-radius: 20px;
+            font-weight: 500;
+            margin-left: 6px;
+        }
+
+        .t-good {
+            background: #e2f5ea;
+            color: var(--green);
+        }
+
+        .t-avg {
+            background: #fef3e0;
+            color: var(--amber);
+        }
+
+        .t-bad {
+            background: #fde8e8;
+            color: var(--red);
+        }
+
+        /* STATS DETAILS */
+        #detail-section {
+            display: none;
+            margin-top: 28px;
+        }
+
+        .detail-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        /* CHART PANELS */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 20px 22px;
+        }
+
+        .chart-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 2px;
+        }
+
+        .chart-desc {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--ink3);
+            margin-bottom: 14px;
+        }
+
+        /* MIN MAX MEDIAN TABLE */
+        .stat-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .stat-table th {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--ink3);
+            font-weight: 500;
+            text-align: left;
+            padding: 6px 12px 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--border);
+            font-family: var(--font-mono);
+            font-size: 12px;
+        }
+
+        .stat-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .stat-table td:first-child {
+            color: var(--ink2);
+        }
+
+        .stat-table td:not(:first-child) {
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        @media(max-width:600px) {
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="nav-logo"><span></span>EvalSuite</div>
+        <div class="nav-meta">MultiEURLEX · Résumé · ROUGE + BERT</div>
+    </nav>
+
+    <div class="page">
+
+        <div class="hero">
+            <h1>Évaluation<br /><em>Agent Résumé</em></h1>
+            <p>// MultiEURLEX FR · ROUGE-1/2/L · BERTScore · 150 documents</p>
+        </div>
+
+        <!-- CONFIG -->
+        <div class="sl">Configuration</div>
+        <div class="ccard">
+            <div class="config-grid">
+                <div class="fld">
+                    <label>URL API résumé</label>
+                    <input type="text" id="cfg-api" value="http://127.0.0.1:8000/api/upload" />
+                </div>
+                <div class="fld">
+                    <label>Clé JSON résumé</label>
+                    <input type="text" id="cfg-key" value="summary" />
+                </div>
+                <div class="fld">
+                    <label>Nombre de documents</label>
+                    <input type="number" id="cfg-n" value="150" min="1" max="5000" />
+                </div>
+                <div class="fld">
+                    <label>Split dataset</label>
+                    <input type="text" id="cfg-split" value="test" />
+                </div>
+            </div>
+            <button class="btn-run" id="btn-run" onclick="startEval()">
+                <i class="ti ti-player-play"></i> Lancer l'évaluation
+            </button>
+        </div>
+
+        <!-- TERMINAL -->
+        <div id="terminal-wrap">
+            <div class="sl">Progression</div>
+            <div class="ccard" style="padding:20px 24px;background:#0d0f14;">
+                <div class="prog-label" id="prog-label">0 / 0</div>
+                <div class="prog-bar">
+                    <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+                </div>
+                <div class="term" id="term"></div>
+            </div>
+        </div>
+
+        <!-- ERROR -->
+        <div id="err-banner"></div>
+
+        <!-- RESULTS -->
+        <div id="results-section">
+            <div class="sl">Résultats moyens</div>
+
+            <div class="stat-grid" id="stat-grid"></div>
+
+            <div id="rouge-block" class="mblock"></div>
+            <div id="bert-block" class="mblock"></div>
+
+            <!-- DÉTAILS -->
+            <div class="detail-toggle">
+                <button class="btn-sec" id="btn-detail" onclick="toggleDetail()">
+                    <i class="ti ti-chart-histogram"></i> Statistiques détaillées
+                </button>
+                <button class="btn-sec" onclick="downloadJSON()">
+                    <i class="ti ti-download"></i> Exporter JSON
+                </button>
+            </div>
+
+            <div id="detail-section">
+                <div class="sl">Distribution & Détails</div>
+
+                <!-- min/max/med table -->
+                <div class="mblock" id="minmax-block"></div>
+
+                <!-- histogrammes -->
+                <div class="chart-grid">
+                    <div class="chart-card">
+                        <div class="chart-title">Distribution ROUGE-1 F1</div>
+                        <div class="chart-desc">répartition sur les documents évalués</div>
+                        <div style="position:relative;height:200px;"><canvas id="h-r1" role="img"
+                                aria-label="Histogramme ROUGE-1 F1">Distribution ROUGE-1 F1</canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">Distribution ROUGE-2 F1</div>
+                        <div class="chart-desc">répartition sur les documents évalués</div>
+                        <div style="position:relative;height:200px;"><canvas id="h-r2" role="img"
+                                aria-label="Histogramme ROUGE-2 F1">Distribution ROUGE-2 F1</canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">Distribution ROUGE-L F1</div>
+                        <div class="chart-desc">répartition sur les documents évalués</div>
+                        <div style="position:relative;height:200px;"><canvas id="h-rl" role="img"
+                                aria-label="Histogramme ROUGE-L F1">Distribution ROUGE-L F1</canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">Distribution BERTScore F1</div>
+                        <div class="chart-desc">répartition sur les documents évalués</div>
+                        <div style="position:relative;height:200px;"><canvas id="h-bf" role="img"
+                                aria-label="Histogramme BERTScore F1">Distribution BERTScore F1</canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">Distribution compression</div>
+                        <div class="chart-desc">% mots résumé / mots document</div>
+                        <div style="position:relative;height:200px;"><canvas id="h-cp" role="img"
+                                aria-label="Histogramme compression">Distribution compression</canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">ROUGE-1 vs BERTScore F1</div>
+                        <div class="chart-desc">corrélation entre les deux métriques</div>
+                        <div style="position:relative;height:200px;"><canvas id="sc-rb" role="img"
+                                aria-label="Scatter ROUGE-1 vs BERT">Scatter ROUGE-1 vs BERT</canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script>
+        let _allResults = null;
+        let _detailOpen = false;
+        let _charts = {};
+
+        // ── API call ────────────────────────────────────────────────────────────────
+        async function startEval() {
+            const btn = document.getElementById('btn-run');
+            btn.disabled = true;
+            document.getElementById('err-banner').style.display = 'none';
+            document.getElementById('results-section').style.display = 'none';
+            document.getElementById('terminal-wrap').style.display = 'block';
+            document.getElementById('term').innerHTML = '';
+            document.getElementById('prog-fill').style.width = '0%';
+            document.getElementById('prog-label').textContent = 'Démarrage…';
+
+            const cfg = {
+                api_url: document.getElementById('cfg-api').value.trim(),
+                summary_key: document.getElementById('cfg-key').value.trim(),
+                n_samples: parseInt(document.getElementById('cfg-n').value),
+                split: document.getElementById('cfg-split').value.trim(),
+            };
+
+            try {
+                const r = await fetch('/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cfg) });
+                if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'HTTP ' + r.status); }
+                listenProgress();
+            } catch (e) {
+                showError(e.message);
+                btn.disabled = false;
+            }
+        }
+
+        function showError(msg) {
+            const b = document.getElementById('err-banner');
+            b.textContent = '⚠  ' + msg;
+            b.style.display = 'block';
+        }
+
+        // ── SSE progress ─────────────────────────────────────────────────────────────
+        function listenProgress() {
+            const es = new EventSource('/progress');
+            const term = document.getElementById('term');
+            const fill = document.getElementById('prog-fill');
+            const label = document.getElementById('prog-label');
+
+            es.onmessage = e => {
+                const d = JSON.parse(e.data);
+                if (d.error) { showError(d.error); es.close(); document.getElementById('btn-run').disabled = false; return; }
+
+                // new log lines
+                d.log.forEach(line => {
+                    const div = document.createElement('div');
+                    if (line.startsWith('✓')) div.className = 'l-ok';
+                    else if (line.startsWith('✗') || line.startsWith('💥')) div.className = 'l-err';
+                    else if (line.startsWith('🎉')) div.className = 'l-done';
+                    else div.className = 'l-inf';
+                    div.textContent = line;
+                    term.appendChild(div);
+                });
+                term.scrollTop = term.scrollHeight;
+
+                if (d.total > 0) {
+                    const pct = Math.round(d.progress / d.total * 100);
+                    fill.style.width = pct + '%';
+                    label.textContent = `${d.progress} / ${d.total}  (${pct}%)`;
+                }
+
+                if (d.done) {
+                    es.close();
+                    fetchResults();
+                }
+            };
+            es.onerror = () => { es.close(); };
+        }
+
+        // ── Fetch & render ───────────────────────────────────────────────────────────
+        async function fetchResults() {
+            const r = await fetch('/results');
+            if (!r.ok) { showError('Impossible de récupérer les résultats'); return; }
+            const data = await r.json();
+            _allResults = data;
+            renderResults(data);
+            document.getElementById('btn-run').disabled = false;
+        }
+
+        function pct(v) { return (v * 100).toFixed(1) + '%'; }
+        function tag(f1) {
+            if (f1 >= .5) return '<span class="mtag t-good">Très bon</span>';
+            if (f1 >= .3) return '<span class="mtag t-avg">Acceptable</span>';
+            return '<span class="mtag t-bad">À améliorer</span>';
+        }
+        function bar(el, fill_class, v) {
+            el.innerHTML = `<div class="bwrap"><div class="bfill ${fill_class}" id="${el.id}-f"></div></div>`;
+            setTimeout(() => { const f = document.getElementById(el.id + '-f'); if (f) f.style.width = (v * 100).toFixed(1) + '%'; }, 80);
+        }
+
+        function renderResults(data) {
+            const avg = data.averages;
+            const docs = data.documents.filter(d => d.status === 'success');
+
+            // Stat grid
+            document.getElementById('stat-grid').innerHTML = `
+    <div class="stat-box"><div class="sk">Docs traités</div><div class="sv">${avg.n_success}</div><div class="sd">sur ${data.documents.length}</div></div>
+    <div class="stat-box"><div class="sk">Mots / doc</div><div class="sv">${avg.avg_doc_words?.toLocaleString('fr') ?? '—'}</div><div class="sd">moyenne</div></div>
+    <div class="stat-box"><div class="sk">Mots / résumé</div><div class="sv">${avg.avg_sum_words?.toLocaleString('fr') ?? '—'}</div><div class="sd">moyenne</div></div>
+    <div class="stat-box"><div class="sk">Compression</div><div class="sv">${avg.avg_compression ?? '—'}%</div><div class="sd">mots résumé / doc</div></div>
+  `;
+
+            // ROUGE block
+            const r = avg.rouge;
+            document.getElementById('rouge-block').innerHTML = `
+    <div class="mblock-head"><i class="ti ti-analyze"></i> ROUGE <span style="font-size:11px;font-weight:400;color:var(--ink3);font-family:var(--font-mono)">${tag(r.rouge1.f1)}</span></div>
+    <div class="mblock-sub">// recouvrement lexical résumé ↔ document source</div>
+    <div class="mrow"><span class="mkey">ROUGE-1</span><div class="bwrap"><div class="bfill f-acc" id="br1" style="width:0%"></div></div><span class="mval">${pct(r.rouge1.f1)}</span></div>
+    <div class="mrow"><span class="mkey">ROUGE-2</span><div class="bwrap"><div class="bfill f-acc" id="br2" style="width:0%"></div></div><span class="mval">${pct(r.rouge2.f1)}</span></div>
+    <div class="mrow"><span class="mkey">ROUGE-L</span><div class="bwrap"><div class="bfill f-acc" id="brl" style="width:0%"></div></div><span class="mval">${pct(r.rougeL.f1)}</span></div>
+    <div style="margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+      ${['rouge1', 'rouge2', 'rougeL'].map(k => `
+        <div style="background:var(--surface2);border-radius:6px;padding:10px 12px;">
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">${k}</div>
+          <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;">
+            <span>P <strong>${pct(r[k].precision)}</strong></span>
+            <span>R <strong>${pct(r[k].recall)}</strong></span>
+            <span>F1 <strong>${pct(r[k].f1)}</strong></span>
+          </div>
+        </div>`).join('')}
+    </div>
+  `;
+            setTimeout(() => {
+                ['r1', 'r2', 'rl'].forEach((id, i) => {
+                    const keys = ['rouge1', 'rouge2', 'rougeL'];
+                    const el = document.getElementById('b' + id);
+                    if (el) el.style.width = (r[keys[i]].f1 * 100).toFixed(1) + '%';
+                });
+            }, 120);
+
+            // BERT block
+            const b = avg.bert_score;
+            if (b && b.f1 != null) {
+                document.getElementById('bert-block').innerHTML = `
+      <div class="mblock-head"><i class="ti ti-brain"></i> BERTScore <span style="font-size:11px;font-weight:400;color:var(--ink3);font-family:var(--font-mono)">${tag(b.f1)}</span></div>
+      <div class="mblock-sub">// similarité sémantique via embeddings BERT (lang=fr)</div>
+      <div class="mrow"><span class="mkey">Précision</span><div class="bwrap"><div class="bfill f-ink" id="bbp" style="width:0%"></div></div><span class="mval">${pct(b.precision)}</span></div>
+      <div class="mrow"><span class="mkey">Rappel</span>   <div class="bwrap"><div class="bfill f-ink" id="bbr" style="width:0%"></div></div><span class="mval">${pct(b.recall)}</span></div>
+      <div class="mrow"><span class="mkey">F1</span>       <div class="bwrap"><div class="bfill f-ink" id="bbf" style="width:0%"></div></div><span class="mval">${pct(b.f1)}</span></div>
+    `;
+                setTimeout(() => {
+                    document.getElementById('bbp').style.width = (b.precision * 100).toFixed(1) + '%';
+                    document.getElementById('bbr').style.width = (b.recall * 100).toFixed(1) + '%';
+                    document.getElementById('bbf').style.width = (b.f1 * 100).toFixed(1) + '%';
+                }, 120);
+            }
+
+            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('detail-section').style.display = 'none';
+            _detailOpen = false;
+        }
+
+        // ── Detail section ───────────────────────────────────────────────────────────
+        function toggleDetail() {
+            if (!_allResults) return;
+            _detailOpen = !_detailOpen;
+            const sec = document.getElementById('detail-section');
+            const btn = document.getElementById('btn-detail');
+            sec.style.display = _detailOpen ? 'block' : 'none';
+            btn.innerHTML = _detailOpen
+                ? '<i class="ti ti-chevron-down"></i> Masquer les détails'
+                : '<i class="ti ti-chart-histogram"></i> Statistiques détaillées';
+            if (_detailOpen) renderDetail();
+        }
+
+        function stats(arr) {
+            if (!arr.length) return { min: 0, max: 0, mean: 0, median: 0, p25: 0, p75: 0 };
+            const s = [...arr].sort((a, b) => a - b);
+            const n = s.length;
+            const mean = s.reduce((a, b) => a + b, 0) / n;
+            const median = n % 2 === 0 ? (s[n / 2 - 1] + s[n / 2]) / 2 : s[Math.floor(n / 2)];
+            return {
+                min: parseFloat(s[0].toFixed(4)),
+                max: parseFloat(s[n - 1].toFixed(4)),
+                mean: parseFloat(mean.toFixed(4)),
+                median: parseFloat(median.toFixed(4)),
+                p25: parseFloat(s[Math.floor(n * 0.25)].toFixed(4)),
+                p75: parseFloat(s[Math.floor(n * 0.75)].toFixed(4)),
+            };
+        }
+
+        function histogram(arr, bins = 12) {
+            if (!arr.length) return { labels: [], counts: [] };
+            const mn = Math.min(...arr), mx = Math.max(...arr);
+            const w = (mx - mn) / bins || 1;
+            const counts = Array(bins).fill(0);
+            arr.forEach(v => { let i = Math.min(Math.floor((v - mn) / w), bins - 1); counts[i]++; });
+            const labels = Array.from({ length: bins }, (_, i) => ((mn + i * w) * 100).toFixed(0) + '%');
+            return { labels, counts };
+        }
+
+        function renderDetail() {
+            const docs = _allResults.documents.filter(d => d.status === 'success');
+            const r1 = docs.map(d => d.rouge.rouge1.f1);
+            const r2 = docs.map(d => d.rouge.rouge2.f1);
+            const rl = docs.map(d => d.rouge.rougeL.f1);
+            const bf = docs.map(d => d.bert_score?.f1).filter(v => v != null);
+            const cp = docs.map(d => d.compression_pct / 100);
+
+            // min/max/median table
+            const metrics = [
+                ['ROUGE-1 F1', stats(r1)],
+                ['ROUGE-2 F1', stats(r2)],
+                ['ROUGE-L F1', stats(rl)],
+                ['BERTScore F1', stats(bf)],
+                ['Compression', stats(cp)],
+            ];
+            document.getElementById('minmax-block').innerHTML = `
+    <div class="mblock-head"><i class="ti ti-table"></i> Statistiques par métrique</div>
+    <div class="mblock-sub">// min · max · médiane · moyenne · P25 · P75</div>
+    <table class="stat-table">
+      <thead><tr>
+        <th>Métrique</th><th>Min</th><th>Max</th><th>Médiane</th><th>Moyenne</th><th>P25</th><th>P75</th>
+      </tr></thead>
+      <tbody>
+        ${metrics.map(([name, s]) => `<tr>
+          <td>${name}</td>
+          <td>${(s.min * 100).toFixed(1)}%</td>
+          <td>${(s.max * 100).toFixed(1)}%</td>
+          <td>${(s.median * 100).toFixed(1)}%</td>
+          <td>${(s.mean * 100).toFixed(1)}%</td>
+          <td>${(s.p25 * 100).toFixed(1)}%</td>
+          <td>${(s.p75 * 100).toFixed(1)}%</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  `;
+
+            // destroy old charts
+            Object.values(_charts).forEach(c => c.destroy());
+            _charts = {};
+
+            const BAR_COLOR = '#d4410b';
+            const BAR_COLOR2 = '#3a3f4e';
+
+            function makeHisto(canvasId, arr, label, color) {
+                const { labels, counts } = histogram(arr);
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                _charts[canvasId] = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label, data: counts, backgroundColor: color + 'cc',
+                            borderColor: color, borderWidth: 1, borderRadius: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.parsed.y} docs` } } },
+                        scales: {
+                            x: { ticks: { font: { size: 9 }, maxRotation: 45, autoSkip: false }, grid: { display: false } },
+                            y: { ticks: { font: { size: 9 } }, grid: { color: 'rgba(0,0,0,.05)' } }
+                        }
+                    }
+                });
+            }
+
+            makeHisto('h-r1', r1, 'ROUGE-1 F1', BAR_COLOR);
+            makeHisto('h-r2', r2, 'ROUGE-2 F1', BAR_COLOR);
+            makeHisto('h-rl', rl, 'ROUGE-L F1', BAR_COLOR);
+            makeHisto('h-bf', bf, 'BERTScore F1', BAR_COLOR2);
+            makeHisto('h-cp', cp, 'Compression', BAR_COLOR2);
+
+            // scatter ROUGE-1 vs BERT
+            const paired = docs.filter(d => d.bert_score != null).map(d => ({ x: d.rouge.rouge1.f1, y: d.bert_score.f1 }));
+            const sctx = document.getElementById('sc-rb').getContext('2d');
+            _charts['sc-rb'] = new Chart(sctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Documents', data: paired,
+                        backgroundColor: '#d4410b88', pointRadius: 3, pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: 'ROUGE-1 F1', font: { size: 10 } }, ticks: { font: { size: 9 } } },
+                        y: { title: { display: true, text: 'BERTScore F1', font: { size: 10 } }, ticks: { font: { size: 9 } } },
+                    }
+                }
+            });
+        }
+
+        // ── Export ───────────────────────────────────────────────────────────────────
+        function downloadJSON() {
+            if (!_allResults) return;
+            const blob = new Blob([JSON.stringify(_allResults, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `eval_results_${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+        }
+    </script>
+</body>
+
+</html>

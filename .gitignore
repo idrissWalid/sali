@@ -1,0 +1,36 @@
+# Backend
+backend/venv/
+backend/__pycache__/
+backend/app/__pycache__/
+backend/app/api/__pycache__/
+backend/app/core/__pycache__/
+backend/app/services/__pycache__/
+*.pyc
+*.env
+.env
+.env.*
+
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+
+# IDEs and OS
+.vscode/
+.idea/
+.DS_Store
+
+# Local Data
+backend/data/
+
+# Large ML Models (too large for GitHub - >100MB)
+backend/BLEURT-20-D12/
+backend/BLEURT-20-D12.zip
+backend/*.zip
+backend/models/
+
+
+# Runtime Data (generated at runtime, not source code)
+data/chroma/
+data/sessions.db
+data/uploads/
