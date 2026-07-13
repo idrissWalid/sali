@@ -63,7 +63,14 @@ function renderMarkdown(text: string, onPropositionClick?: (text: string) => voi
         const content = match[2];
         const HeaderTag = `h${level}` as any;
 
-        if (content.toUpperCase().includes("PROPOSITIONS")) {
+        const upperContent = content.toUpperCase();
+        if (
+          upperContent.includes("PROPOSITION") ||
+          upperContent.includes("SUGGESTION") ||
+          upperContent.includes("QUESTION") ||
+          upperContent.includes("IDÉE") ||
+          upperContent.includes("IDEE")
+        ) {
           inPropositions = true;
         } else if (level <= 3) {
           // Si on rencontre un autre grand titre, on sort de la section propositions
@@ -470,7 +477,11 @@ export default function ChatPanel({ sessionId, sourceCount, initialMessage, sele
                           onMouseEnter={e => e.currentTarget.style.opacity = "0.85"}
                           onMouseLeave={e => e.currentTarget.style.opacity = "1"}
                         >
-                          <span style={{ fontSize: "16px" }}>📊</span> Voir le Dashboard interactif
+                          <span style={{ display: "inline-flex", alignItems: "center" }}>
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M2.4 13.2A1.2 1.2 0 0 1 3.6 12H6a1.2 1.2 0 0 1 1.2 1.2v6A1.2 1.2 0 0 1 6 20.4H3.6a1.2 1.2 0 0 1-1.2-1.2v-6Zm7.2-4.8a1.2 1.2 0 0 1 1.2-1.2h2.4a1.2 1.2 0 0 1 1.2 1.2v10.8a1.2 1.2 0 0 1-1.2 1.2h-2.4a1.2 1.2 0 0 1-1.2-1.2V8.4Zm7.2-3.6A1.2 1.2 0 0 1 18 3.6h2.4a1.2 1.2 0 0 1 1.2 1.2v14.4a1.2 1.2 0 0 1-1.2 1.2H18a1.2 1.2 0 0 1-1.2-1.2V4.8Z"></path>
+                            </svg>
+                          </span> Voir le Dashboard interactif
                         </button>
                       )}
 
@@ -649,7 +660,18 @@ export default function ChatPanel({ sessionId, sourceCount, initialMessage, sele
               onMouseEnter={e => { if (!isRecording && !loading) e.currentTarget.style.background = "var(--bubble-ai)"; }}
               onMouseLeave={e => { if (!isRecording && !loading) e.currentTarget.style.background = "transparent"; }}
             >
-              {isRecording ? "⏹️" : "🎙️"}
+              {isRecording ? (
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="6" y="6" width="12" height="12" rx="2" />
+                </svg>
+              ) : (
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 22h8"></path>
+                  <path d="M12 14a3 3 0 0 1-3-3V5a3 3 0 1 1 6 0v6a3 3 0 0 1-3 3Z"></path>
+                  <path d="M19 11a7 7 0 1 1-14 0"></path>
+                  <path d="M12 18v4"></path>
+                </svg>
+              )}
             </button>
             <button
               onClick={send}
