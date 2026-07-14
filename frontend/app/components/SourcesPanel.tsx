@@ -2,6 +2,8 @@
 import { useRef, useState } from "react";
 import SplitText from "./SplitText";
 import { UploadIcon } from "./UploadIcon";
+import Modal from "./Modal";
+import { Progress } from "./Progress";
 
 interface Source {
   name: string;
@@ -33,9 +35,10 @@ export default function SourcesPanel({ sources, onUpload, onRemove, hideHeader =
     message: "",
   });
 
-  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const processFile = async (f: File) => {
 
     const formData = new FormData();
     formData.append("file", f);
@@ -114,6 +117,13 @@ export default function SourcesPanel({ sources, onUpload, onRemove, hideHeader =
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
+  };
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setIsUploadModalOpen(false);
+    await processFile(f);
   };
 
   return (
@@ -258,20 +268,15 @@ export default function SourcesPanel({ sources, onUpload, onRemove, hideHeader =
             />
           </div>
 
-          {/* Mini barre de progression */}
-          <div style={{ width: "100%", background: "var(--border-color)", height: "4px", borderRadius: "2px", overflow: "hidden" }}>
-            <div style={{
-              height: "100%",
-              background: "var(--accent-color)",
-              width: `${loadingState.step === 1 ? 25 : loadingState.step === 2 ? 50 : loadingState.step === 3 ? 75 : 95}%`,
-              borderRadius: "2px",
-              transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-            }} />
-          </div>
+          {/* Mini barre de progression Radix UI */}
+          <Progress 
+            value={loadingState.step === 1 ? 25 : loadingState.step === 2 ? 50 : loadingState.step === 3 ? 75 : 95} 
+            className="h-1.5"
+          />
         </div>
       ) : (
         <button
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => setIsUploadModalOpen(true)}
           style={{
             display: "flex",
             alignItems: "center",
@@ -394,6 +399,61 @@ export default function SourcesPanel({ sources, onUpload, onRemove, hideHeader =
         ))}
       </div>
 
+      {/* Modal d'Upload Drag & Drop */}
+      <Modal isOpen={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} title="Ajouter une source" maxWidth="500px">
+        <div
+          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsDragging(false);
+            const f = e.dataTransfer.files?.[0];
+            if (f) {
+              setIsUploadModalOpen(false);
+              processFile(f);
+            }
+          }}
+          onClick={() => fileInputRef.current?.click()}
+          style={{
+            border: `2px dashed ${isDragging ? "var(--accent-color)" : "var(--border-muted)"}`,
+            borderRadius: "16px",
+            padding: "48px 24px",
+            textAlign: "center",
+            background: isDragging ? "var(--bubble-ai)" : "transparent",
+            transition: "all 0.2s ease",
+            cursor: "pointer",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "16px"
+          }}
+        >
+          <div style={{
+            width: "64px",
+            height: "64px",
+            borderRadius: "50%",
+            background: "var(--bubble-user)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "var(--accent-color)",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)"
+          }}>
+            <UploadIcon size={32} isHovered={isDragging} />
+          </div>
+          <div>
+            <div style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-main)", marginBottom: "6px" }}>
+              Glissez et déposez votre fichier ici
+            </div>
+            <div style={{ fontSize: "14px", color: "var(--text-muted)" }}>
+              ou <span style={{ color: "var(--accent-color)", fontWeight: 500 }}>cliquez pour parcourir</span>
+            </div>
+          </div>
+          <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "4px" }}>
+            Formats supportés : CSV, XLSX, XLS, PDF, DOCX
+          </div>
+        </div>
+      </Modal>
 
     </div>
   );

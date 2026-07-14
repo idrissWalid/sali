@@ -30,7 +30,7 @@ const AlertDialogContent = React.forwardRef<
       ref={ref}
       style={{ background: "var(--bg-panel)", border: "1px solid var(--border-color)", color: "var(--text-main)", ...style }}
       className={cn(
-        'fixed left-[50%] top-[50%] z-[1000] grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-xl p-6 shadow-2xl duration-200',
+        'fixed left-[50%] top-[50%] z-[1000] grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-2xl p-8 sm:p-10 shadow-2xl duration-200',
         className
       )}
       {...props}
