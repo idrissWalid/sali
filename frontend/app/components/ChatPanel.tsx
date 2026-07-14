@@ -56,38 +56,50 @@ function renderMarkdown(text: string, onPropositionClick?: (text: string) => voi
   return lines.map((line, i) => {
     const cleanLine = line.trim();
 
-    // 1. Détection des titres (headers)
-    if (cleanLine.startsWith("#")) {
-      const match = cleanLine.match(/^(#{1,6})\s+(.*)$/);
-      if (match) {
-        const level = match[1].length; // 1 à 6
-        const content = match[2];
-        const HeaderTag = `h${level}` as any;
+    // 1. Détection des titres (headers) ou pseudo-titres en gras
+    let isHeader = false;
+    let level = 3;
+    let content = "";
 
-        const upperContent = content.toUpperCase();
-        if (
-          upperContent.includes("PROPOSITION") ||
-          upperContent.includes("SUGGESTION") ||
-          upperContent.includes("QUESTION") ||
-          upperContent.includes("IDÉE") ||
-          upperContent.includes("IDEE")
-        ) {
-          inPropositions = true;
-        } else if (level <= 3) {
-          // Si on rencontre un autre grand titre, on sort de la section propositions
-          inPropositions = false;
-        }
+    const headerMatch = cleanLine.match(/^(#{1,6})\s+(.*)$/);
+    const boldHeaderMatch = cleanLine.match(/^\*\*([^*]+)\*\*\s*:?$/);
 
-        const style: React.CSSProperties = {
-          margin: level === 1 ? "18px 0 10px" : level === 2 ? "16px 0 8px" : "12px 0 6px",
-          fontWeight: 600,
-          fontSize: level === 1 ? "18px" : level === 2 ? "16px" : level === 3 ? "14px" : "13px",
-          color: "var(--text-main)",
-          lineHeight: 1.4,
-        };
+    if (headerMatch) {
+      isHeader = true;
+      level = headerMatch[1].length; // 1 à 6
+      content = headerMatch[2];
+    } else if (boldHeaderMatch) {
+      isHeader = true;
+      level = 3;
+      content = boldHeaderMatch[1];
+    }
 
-        return <HeaderTag key={i} style={style}>{renderInlineMarkdown(content)}</HeaderTag>;
+    if (isHeader) {
+      const HeaderTag = `h${level}` as any;
+      const upperContent = content.toUpperCase();
+      
+      if (
+        upperContent.includes("PROPOSITION") ||
+        upperContent.includes("SUGGESTION") ||
+        upperContent.includes("QUESTION") ||
+        upperContent.includes("IDÉE") ||
+        upperContent.includes("IDEE")
+      ) {
+        inPropositions = true;
+      } else if (level <= 3) {
+        // Si on rencontre un autre grand titre, on sort de la section propositions
+        inPropositions = false;
       }
+
+      const style: React.CSSProperties = {
+        margin: level === 1 ? "18px 0 10px" : level === 2 ? "16px 0 8px" : "12px 0 6px",
+        fontWeight: 600,
+        fontSize: level === 1 ? "18px" : level === 2 ? "16px" : level === 3 ? "14px" : "13px",
+        color: "var(--text-main)",
+        lineHeight: 1.4,
+      };
+
+      return <HeaderTag key={i} style={style}>{renderInlineMarkdown(content)}</HeaderTag>;
     }
 
     // 2. Détection des listes à puces (bullet points) ou numérotées
@@ -95,14 +107,14 @@ function renderMarkdown(text: string, onPropositionClick?: (text: string) => voi
     const numMatch = cleanLine.match(/^(\d+)\.\s+(.*)$/);
 
     if (isBullet || numMatch) {
-      let content = "";
+      let listContent = "";
       let prefix = "";
       if (isBullet) {
-        content = cleanLine.substring(2);
+        listContent = cleanLine.substring(2);
         prefix = "•";
       } else {
         prefix = numMatch![1] + ".";
-        content = numMatch![2];
+        listContent = numMatch![2];
       }
 
       if (inPropositions && onPropositionClick) {
@@ -110,7 +122,7 @@ function renderMarkdown(text: string, onPropositionClick?: (text: string) => voi
         return (
           <div
             key={i}
-            onClick={() => onPropositionClick(content.replace(/\*\*/g, ""))} // Enlève le gras pour l'input
+            onClick={() => onPropositionClick(listContent.replace(/\*\*/g, ""))} // Enlève le gras pour l'input
             style={{
               margin: "8px 0 8px 12px",
               padding: "10px 14px",
@@ -135,7 +147,7 @@ function renderMarkdown(text: string, onPropositionClick?: (text: string) => voi
               e.currentTarget.style.color = "var(--accent-color)";
             }}
           >
-            {renderInlineMarkdown(content)}
+            {renderInlineMarkdown(listContent)}
           </div>
         );
       }
@@ -143,7 +155,7 @@ function renderMarkdown(text: string, onPropositionClick?: (text: string) => voi
       return (
         <div key={i} style={{ display: "flex", gap: "8px", margin: "6px 0 6px 12px", alignItems: "flex-start" }}>
           <span style={{ color: "var(--accent-color)", fontWeight: numMatch ? "bold" : "normal", fontSize: numMatch ? "13px" : "inherit", marginTop: numMatch ? "0" : "1px" }}>{prefix}</span>
-          <span style={{ flex: 1 }}>{renderInlineMarkdown(content)}</span>
+          <span style={{ flex: 1 }}>{renderInlineMarkdown(listContent)}</span>
         </div>
       );
     }
@@ -151,6 +163,17 @@ function renderMarkdown(text: string, onPropositionClick?: (text: string) => voi
     // 4. Paragraphe classique ou ligne vide
     if (cleanLine === "") {
       return <div key={i} style={{ height: "8px" }} />;
+    }
+
+    const upperLine = cleanLine.toUpperCase();
+    if (
+      upperLine.includes("PROPOSITION") ||
+      upperLine.includes("SUGGESTION") ||
+      upperLine.includes("QUESTION") ||
+      upperLine.includes("IDÉE") ||
+      upperLine.includes("IDEE")
+    ) {
+      inPropositions = true;
     }
 
     return (

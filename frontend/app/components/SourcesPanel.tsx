@@ -42,9 +42,8 @@ export default function SourcesPanel({ sources, onUpload, onRemove, hideHeader =
 
     const formData = new FormData();
     formData.append("file", f);
-    if (selectedModel) {
-      formData.append("model", selectedModel);
-    }
+    formData.append("model", selectedModel || "gemma2:latest");
+    formData.append("index_doc", "true");
 
     setLoadingState({
       isLoading: true,
@@ -57,6 +56,9 @@ export default function SourcesPanel({ sources, onUpload, onRemove, hideHeader =
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
       const res = await fetch(`${apiUrl}/api/upload`, {
         method: "POST",
+        headers: {
+          "accept": "application/json"
+        },
         body: formData,
       });
 

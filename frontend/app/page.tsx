@@ -10,6 +10,7 @@ import SettingsModal from "./components/SettingsModal";
 import ShareModal from "./components/ShareModal";
 import AvatarMenu from "./components/AvatarMenu";
 import Modal from "./components/Modal";
+import GlareHover from "./components/GlareHover";
 
 interface Source {
   name: string;
@@ -270,62 +271,14 @@ export default function Home() {
               border: "1px solid var(--border-color)",
               overflow: "hidden",
             }}>
-              {/* Tab Switcher */}
-              <div style={{
-                display: "flex",
-                borderBottom: "1px solid var(--border-muted)",
-                background: "var(--bg-panel)",
-                padding: "2px 4px 0",
-              }}>
-                <button
-                  onClick={() => setLeftTab("sources")}
-                  style={{
-                    flex: 1,
-                    padding: "12px 6px",
-                    background: "none",
-                    border: "none",
-                    borderBottom: `2.5px solid ${leftTab === "sources" ? "var(--accent-color)" : "transparent"}`,
-                    color: leftTab === "sources" ? "var(--text-main)" : "var(--text-muted)",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    transition: "all 0.15s",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                  }}
-                >
-                  📁 Sources ({sources.length})
-                </button>
-                <button
-                  onClick={() => setLeftTab("history")}
-                  style={{
-                    flex: 1,
-                    padding: "12px 6px",
-                    background: "none",
-                    border: "none",
-                    borderBottom: `2.5px solid ${leftTab === "history" ? "var(--accent-color)" : "transparent"}`,
-                    color: leftTab === "history" ? "var(--text-main)" : "var(--text-muted)",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    transition: "all 0.15s",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                  }}
-                >
-                  💬 Historique
-                </button>
-              </div>
+
 
               {/* Tab Content */}
-              <div style={{ flex: 1, overflow: "hidden" }}>
-                {leftTab === "sources" ? (
+              <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+                <div style={{ display: leftTab === "sources" ? "flex" : "none", height: "100%", flexDirection: "column" }}>
                   <SourcesPanel sources={sources} onUpload={handleUpload} onRemove={handleRemove} hideHeader={true} selectedModel={selectedModel} />
-                ) : (
+                </div>
+                <div style={{ display: leftTab === "history" ? "flex" : "none", height: "100%", flexDirection: "column" }}>
                   <Sidebar
                     sessions={sessions}
                     currentSessionId={sessionId}
@@ -334,7 +287,81 @@ export default function Home() {
                     onNewSession={handleNewSession}
                     hideHeader={true}
                   />
-                )}
+                </div>
+              </div>
+
+              {/* Bottom Tab Switcher */}
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "8px",
+                padding: "12px",
+                borderTop: "1px solid var(--border-color)",
+                background: "var(--bg-panel)",
+              }}>
+                <GlareHover
+                  onClick={() => setLeftTab("sources")}
+                  background={leftTab === "sources" ? "var(--bubble-user)" : "var(--bubble-ai)"}
+                  borderColor={leftTab === "sources" ? "var(--accent-color)" : "var(--border-color)"}
+                  borderRadius="10px"
+                  glareOpacity={0.2}
+                  style={{
+                    padding: "10px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.setProperty('--gh-bg', 'var(--bubble-user)'); }}
+                  onMouseLeave={(e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.setProperty('--gh-bg', leftTab === "sources" ? "var(--bubble-user)" : "var(--bubble-ai)"); }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", color: leftTab === "sources" ? "var(--text-main)" : "var(--text-muted)" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
+                    </svg>
+                  </span>
+                  <span style={{ 
+                    fontSize: "13px", 
+                    fontWeight: 600, 
+                    color: leftTab === "sources" ? "var(--text-main)" : "var(--text-muted)" 
+                  }}>
+                    Fichiers ({sources.length})
+                  </span>
+                </GlareHover>
+
+                <GlareHover
+                  onClick={() => setLeftTab("history")}
+                  background={leftTab === "history" ? "var(--bubble-user)" : "var(--bubble-ai)"}
+                  borderColor={leftTab === "history" ? "var(--accent-color)" : "var(--border-color)"}
+                  borderRadius="10px"
+                  glareOpacity={0.2}
+                  style={{
+                    padding: "10px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.setProperty('--gh-bg', 'var(--bubble-user)'); }}
+                  onMouseLeave={(e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.setProperty('--gh-bg', leftTab === "history" ? "var(--bubble-user)" : "var(--bubble-ai)"); }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", color: leftTab === "history" ? "var(--text-main)" : "var(--text-muted)" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                  </span>
+                  <span style={{ 
+                    fontSize: "13px", 
+                    fontWeight: 600, 
+                    color: leftTab === "history" ? "var(--text-main)" : "var(--text-muted)" 
+                  }}>
+                    Historique
+                  </span>
+                </GlareHover>
               </div>
             </div>
           </Panel>
