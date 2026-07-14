@@ -1,5 +1,6 @@
 from app.services.sandbox_service import execute_code, validate_output
 from app.services.gemini_service import get_gemini_client
+from app.services.ollama_service import ask_ollama
 from app.services.model_specs import ModelSpec
 
 MAX_ATTEMPTS = 3
@@ -10,7 +11,8 @@ def run_with_autocorrect(
     filename: str,
     question: str,
     data_context: str,
-    spec: ModelSpec = None
+    spec: ModelSpec = None,
+    model: str = "gemma2:latest"
 ) -> dict:
     """
     Exécute le code, et si erreur ou résultats suspects,
@@ -40,6 +42,7 @@ def run_with_autocorrect(
                     question=question,
                     data_context=data_context,
                     error_msg="Le code s'est exécuté sans erreur mais n'a produit aucune sortie ni graphique.",
+                    model=model,
                 )
                 continue
             # Résultat valide
@@ -52,12 +55,13 @@ def run_with_autocorrect(
                 question=question,
                 data_context=data_context,
                 error_msg=result["error"]["technical"],
+                model=model,
             )
 
     return last_result
 
 
-def _ask_correction(code: str, question: str, data_context: str, error_msg: str) -> str:
+def _ask_correction(code: str, question: str, data_context: str, error_msg: str, model: str = "gemma2:latest") -> str:
     prompt = f"""
 Tu as généré ce code Python pour répondre à : "{question}"
 
@@ -74,12 +78,16 @@ Le dataframe est dans la variable `df`.
 Réponds UNIQUEMENT avec le code Python corrigé, sans explication ni markdown.
 """
     try:
-        client = get_gemini_client()
-        response = client.models.generate_content(
-            model="gemini-3.1-flash-lite-preview",
-            contents=prompt
-        )
-        corrected = response.text.strip()
+        if model and model.startswith("gemini"):
+            client = get_gemini_client()
+            response = client.models.generate_content(
+                model=model,
+                contents=prompt
+            )
+            corrected = response.text.strip()
+        else:
+            corrected = ask_ollama(prompt, model=model).strip()
+            
         if corrected.startswith("```"):
             lines = corrected.split("\n")
             corrected = "\n".join(lines[1:-1])

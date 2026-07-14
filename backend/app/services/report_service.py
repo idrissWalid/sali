@@ -2,6 +2,7 @@ import io
 import base64
 from datetime import datetime
 from app.services.gemini_service import get_gemini_client
+from app.services.ollama_service import ask_ollama
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
@@ -23,6 +24,7 @@ def draft_report_with_llm(
     chat_history: list,
     title: str,
     institution: str,
+    model: str = "gemma2:latest"
 ) -> dict:
     """
     Demande à Gemini de rédiger un rapport structuré
@@ -62,12 +64,16 @@ Retourne EXACTEMENT ce format JSON (sans markdown) :
 }}
 """
     try:
-        client = get_gemini_client()
-        response = client.models.generate_content(
-            model="gemini-3.1-flash-lite-preview",
-            contents=prompt
-        )
-        text = response.text.strip()
+        if model and model.startswith("gemini"):
+            client = get_gemini_client()
+            response = client.models.generate_content(
+                model=model,
+                contents=prompt
+            )
+            text = response.text.strip()
+        else:
+            text = ask_ollama(prompt, model=model).strip()
+            
         # Nettoyer les backticks si présents
         if text.startswith("```"):
             lines = text.split("\n")
@@ -100,6 +106,7 @@ def build_pdf_report(
         chat_history=messages,
         title=title,
         institution=institution,
+        model=messages[-1].get("model", "gemma2:latest") if messages else "gemma2:latest"
     )
 
     buffer = io.BytesIO()
@@ -208,6 +215,7 @@ def build_word_report(
         chat_history=messages,
         title=title,
         institution=institution,
+        model=messages[-1].get("model", "gemma2:latest") if messages else "gemma2:latest"
     )
 
     doc = Document()

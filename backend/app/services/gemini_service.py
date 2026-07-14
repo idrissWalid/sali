@@ -1,5 +1,6 @@
 from google import genai
 from google.genai import types
+from app.services.ollama_service import ask_ollama
 from app.core.config import GEMINI_API_KEY
 
 _client = None
@@ -22,7 +23,7 @@ Ne commence JAMAIS tes réponses par des formules d'introduction ou des salutati
 
 À CHAQUE RÉPONSE, tu DOIS toujours formuler 1 à 3 suggestions d'analyses complémentaires pertinentes que l'utilisateur pourrait te demander de faire sur le jeu de données pour approfondir le sujet."""
 
-def ask_gemini(prompt: str, history: list = [], data_context: str = "") -> str:
+def ask_gemini(prompt: str, history: list = [], data_context: str = "", model: str = "gemini-3.1-flash-lite-preview") -> str:
     try:
         full_prompt = SYSTEM_PROMPT
         if data_context:
@@ -39,9 +40,17 @@ def ask_gemini(prompt: str, history: list = [], data_context: str = "") -> str:
                 )
             )
 
+        if model and not model.startswith("gemini"):
+            # Route vers Ollama
+            ollama_prompt = f"{full_prompt}\n\nHistorique récent:\n"
+            for msg in history[-5:]:
+                role = "User" if msg["role"] == "user" else "Assistant"
+                ollama_prompt += f"{role}: {msg['content']}\n"
+            return ask_ollama(ollama_prompt, model=model)
+
         client = get_gemini_client()
         chat = client.chats.create(
-            model="gemini-3.1-flash-lite-preview",
+            model=model,
             history=gemini_history
         )
         response = chat.send_message(full_prompt)
@@ -50,7 +59,7 @@ def ask_gemini(prompt: str, history: list = [], data_context: str = "") -> str:
         return f"Erreur Gemini : {str(e)}"
 
 
-def generate_visualization_code(question: str, data_context: str, history: list = []) -> str:
+def generate_visualization_code(question: str, data_context: str, history: list = [], model: str = "gemini-3.1-flash-lite-preview") -> str:
     """
     Demande à Gemini de générer uniquement du code Python
     pour répondre à une question de visualisation.
@@ -87,13 +96,22 @@ IMPORTANT: Lors de tes analyses visuelles, PRIVILÉGIE l'utilisation de courbes 
                 )
             )
 
-        client = get_gemini_client()
-        chat = client.chats.create(
-            model="gemini-3.1-flash-lite-preview",
-            history=gemini_history
-        )
-        response = chat.send_message(prompt)
-        code = response.text.strip()
+        if model and not model.startswith("gemini"):
+            # Route vers Ollama
+            ollama_prompt = f"{prompt}\n\nHistorique récent:\n"
+            for msg in history[-5:]:
+                role = "User" if msg["role"] == "user" else "Assistant"
+                ollama_prompt += f"{role}: {msg['content']}\n"
+            code = ask_ollama(ollama_prompt, model=model).strip()
+        else:
+            client = get_gemini_client()
+            chat = client.chats.create(
+                model=model,
+                history=gemini_history
+            )
+            response = chat.send_message(prompt)
+            code = response.text.strip()
+            
         # Nettoyer si Gemini met des backticks malgré tout
         if code.startswith("```"):
             lines = code.split("\n")

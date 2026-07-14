@@ -30,12 +30,16 @@ Si c'est pour grouper/segmenter -> clustering
 Si c'est pour réduire la dimension ou faire une ACP -> factor_analysis
     """
     try:
-        client = get_gemini_client()
-        response = client.models.generate_content(
-            model="gemini-3.1-flash-lite-preview",
-            contents=prompt
-        )
-        val = response.text.strip().lower()
+        if model and model.startswith("gemini"):
+            client = get_gemini_client()
+            response = client.models.generate_content(
+                model=model,
+                contents=prompt
+            )
+            val = response.text.strip().lower()
+        else:
+            val = ask_ollama(prompt, model=model).strip().lower()
+
         if val in [f.value for f in ModelFamily]:
             return ModelFamily(val)
     except Exception:
@@ -45,7 +49,7 @@ Si c'est pour réduire la dimension ou faire une ACP -> factor_analysis
     return ModelFamily.TREE_ENSEMBLE
 
 
-def generate_ml_code(question: str, data_context: str, family: ModelFamily, history: list = []) -> str:
+def generate_ml_code(question: str, data_context: str, family: ModelFamily, history: list = [], model: str = "gemma2:latest") -> str:
     spec = MODEL_SPECS[family]
     
     prompt = f"""
@@ -83,13 +87,22 @@ statsmodels, scikit-learn, joblib.
                 )
             )
 
-        client = get_gemini_client()
-        chat = client.chats.create(
-            model="gemini-3.1-flash-lite-preview",
-            history=gemini_history
-        )
-        response = chat.send_message(prompt)
-        code = response.text.strip()
+        if model and model.startswith("gemini"):
+            client = get_gemini_client()
+            chat = client.chats.create(
+                model=model,
+                history=gemini_history
+            )
+            response = chat.send_message(prompt)
+            code = response.text.strip()
+        else:
+            # Pour Ollama, on reformate l'historique
+            full_prompt = ""
+            for msg in history[-5:]:
+                role = "User" if msg["role"] == "user" else "Assistant"
+                full_prompt += f"{role}: {msg['content']}\n"
+            full_prompt += prompt
+            code = ask_ollama(full_prompt, model=model).strip()
         if code.startswith("```"):
             lines = code.split("\n")
             if lines[-1].startswith("```"):
@@ -101,7 +114,7 @@ statsmodels, scikit-learn, joblib.
         return ""
 
 
-def generate_ml_interpretation(question: str, output: str, data_context: str, has_images: bool, history: list = []) -> str:
+def generate_ml_interpretation(question: str, output: str, data_context: str, has_images: bool, history: list = [], model: str = "gemma2:latest") -> str:
     prompt = f"""
 {data_context}
 
@@ -130,12 +143,20 @@ Réponds en français.
                 )
             )
 
-        client = get_gemini_client()
-        chat = client.chats.create(
-            model="gemini-3.1-flash-lite-preview",
-            history=gemini_history
-        )
-        response = chat.send_message(prompt)
-        return response.text.strip()
+        if model and model.startswith("gemini"):
+            client = get_gemini_client()
+            chat = client.chats.create(
+                model=model,
+                history=gemini_history
+            )
+            response = chat.send_message(prompt)
+            return response.text.strip()
+        else:
+            full_prompt = ""
+            for msg in history[-5:]:
+                role = "User" if msg["role"] == "user" else "Assistant"
+                full_prompt += f"{role}: {msg['content']}\n"
+            full_prompt += prompt
+            return ask_ollama(full_prompt, model=model).strip()
     except Exception as e:
         return "Interprétation indisponible."

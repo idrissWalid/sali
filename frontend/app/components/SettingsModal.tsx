@@ -6,16 +6,19 @@ import Modal from "./Modal";
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  models?: string[];
+  selectedModel?: string;
+  onModelChange?: (model: string) => void;
 }
 
 type TabType = "general" | "model" | "rag";
 
-export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+export default function SettingsModal({ isOpen, onClose, models = [], selectedModel = "", onModelChange }: SettingsModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>("general");
 
   // Settings states
   const [lang, setLang] = useState("fr");
-  const [aiModel, setAiModel] = useState("qwen-3.5-9b");
+  const [aiModel, setAiModel] = useState(selectedModel || "gemma2:latest");
   const [temperature, setTemperature] = useState(0.2);
   const [maxTokens, setMaxTokens] = useState(2048);
   const [chunkSize, setChunkSize] = useState(500);
@@ -139,8 +142,13 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-muted)" }}>Modèle de langage (LLM)</label>
                 <select
-                  value={aiModel}
-                  onChange={(e) => setAiModel(e.target.value)}
+                  value={selectedModel || aiModel}
+                  onChange={(e) => {
+                    setAiModel(e.target.value);
+                    if (onModelChange) {
+                      onModelChange(e.target.value);
+                    }
+                  }}
                   style={{
                     padding: "10px 14px",
                     borderRadius: "10px",
@@ -151,11 +159,12 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     fontSize: "13px",
                   }}
                 >
-                  <option value="qwen-3.5-9b">Qwen 3.5 9B</option>
-                  <option value="custom-ngrok-model">Custom Model (ngrok)</option>
-                  <option value="gemini-1.5-flash">Gemini 1.5 Flash (Rapide)</option>
-                  <option value="gemini-1.5-pro">Gemini 1.5 Pro (Créatif)</option>
-                  <option value="llama-3.1">Llama 3.1 70B (Open-Source)</option>
+                  {models.map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                  {models.length === 0 && (
+                    <option value="gemma2:latest">gemma2:latest</option>
+                  )}
                 </select>
               </div>
 

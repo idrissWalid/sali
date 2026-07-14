@@ -3,6 +3,7 @@
 interface Props {
   sessionId: string | null;
 }
+import GlareHover from './GlareHover';
 
 const STUDIO_ITEMS_SOON = [
   { icon: (
@@ -79,24 +80,23 @@ export default function StudioPanel({ sessionId }: Props) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", padding: "16px" }}>
 
         {/* Rapport PDF — actif */}
-        <div
+        <GlareHover
           onClick={() => downloadReport("pdf")}
+          background="var(--bubble-ai)"
+          borderColor="var(--border-color)"
+          borderRadius="14px"
+          glareOpacity={0.3}
           style={{
-            background: "var(--bubble-ai)",
-            border: "1px solid var(--border-color)",
-            borderRadius: "14px",
             padding: "16px 14px",
             cursor: sessionId ? "pointer" : "not-allowed",
-            position: "relative",
             minHeight: "90px",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
             opacity: sessionId ? 1 : 0.5,
-            transition: "background .15s",
           }}
-          onMouseEnter={e => { if (sessionId) (e.currentTarget as HTMLElement).style.background = "var(--bubble-user)"; }}
-          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "var(--bubble-ai)"}
+          onMouseEnter={(e: React.MouseEvent) => { if (sessionId) (e.currentTarget as HTMLElement).style.setProperty('--gh-bg', 'var(--bubble-user)'); }}
+          onMouseLeave={(e: React.MouseEvent) => (e.currentTarget as HTMLElement).style.setProperty('--gh-bg', 'var(--bubble-ai)')}
         >
           <span style={{ display: "inline-flex", alignItems: "center" }}>
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -109,27 +109,26 @@ export default function StudioPanel({ sessionId }: Props) {
           <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-main)", marginTop: "10px", lineHeight: 1.3 }}>
             Rapport PDF
           </div>
-        </div>
+        </GlareHover>
 
         {/* Rapport Word — actif */}
-        <div
+        <GlareHover
           onClick={() => downloadReport("word")}
+          background="var(--bubble-ai)"
+          borderColor="var(--border-color)"
+          borderRadius="14px"
+          glareOpacity={0.3}
           style={{
-            background: "var(--bubble-ai)",
-            border: "1px solid var(--border-color)",
-            borderRadius: "14px",
             padding: "16px 14px",
             cursor: sessionId ? "pointer" : "not-allowed",
-            position: "relative",
             minHeight: "90px",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
             opacity: sessionId ? 1 : 0.5,
-            transition: "background .15s",
           }}
-          onMouseEnter={e => { if (sessionId) (e.currentTarget as HTMLElement).style.background = "var(--bubble-user)"; }}
-          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "var(--bubble-ai)"}
+          onMouseEnter={(e: React.MouseEvent) => { if (sessionId) (e.currentTarget as HTMLElement).style.setProperty('--gh-bg', 'var(--bubble-user)'); }}
+          onMouseLeave={(e: React.MouseEvent) => (e.currentTarget as HTMLElement).style.setProperty('--gh-bg', 'var(--bubble-ai)')}
         >
           <span style={{ display: "inline-flex", alignItems: "center" }}>
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -143,27 +142,26 @@ export default function StudioPanel({ sessionId }: Props) {
           <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-main)", marginTop: "10px", lineHeight: 1.3 }}>
             Rapport Word
           </div>
-        </div>
+        </GlareHover>
 
         {/* Dashboard Interactif */}
-        <div
+        <GlareHover
           onClick={() => { if (sessionId) window.open(`/dashboard/${sessionId}`, "_blank"); }}
+          background="var(--bubble-ai)"
+          borderColor="var(--border-color)"
+          borderRadius="14px"
+          glareOpacity={0.3}
           style={{
-            background: "var(--bubble-ai)",
-            border: "1px solid var(--border-color)",
-            borderRadius: "14px",
             padding: "16px 14px",
             cursor: sessionId ? "pointer" : "not-allowed",
-            position: "relative",
             minHeight: "90px",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
             opacity: sessionId ? 1 : 0.5,
-            transition: "background .15s",
           }}
-          onMouseEnter={e => { if (sessionId) (e.currentTarget as HTMLElement).style.background = "var(--bubble-user)"; }}
-          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "var(--bubble-ai)"}
+          onMouseEnter={(e: React.MouseEvent) => { if (sessionId) (e.currentTarget as HTMLElement).style.setProperty('--gh-bg', 'var(--bubble-user)'); }}
+          onMouseLeave={(e: React.MouseEvent) => (e.currentTarget as HTMLElement).style.setProperty('--gh-bg', 'var(--bubble-ai)')}
         >
           <span style={{ display: "inline-flex", alignItems: "center" }}>
             <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -173,33 +171,36 @@ export default function StudioPanel({ sessionId }: Props) {
           <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-main)", marginTop: "10px", lineHeight: 1.3 }}>
             Dashboard interactif
           </div>
-        </div>
+        </GlareHover>
 
         {/* Cartes bientôt */}
         {STUDIO_ITEMS_SOON.map((item, i) => (
-          <div key={i} style={{
-            background: "var(--bubble-ai)",
-            border: "1px solid var(--border-color)",
-            borderRadius: "14px",
-            padding: "16px 14px",
-            cursor: "not-allowed",
-            position: "relative",
-            minHeight: "90px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-          }}>
+          <GlareHover key={i}
+            background="var(--bubble-ai)"
+            borderColor="var(--border-color)"
+            borderRadius="14px"
+            glareOpacity={0.15}
+            style={{
+              padding: "16px 14px",
+              cursor: "not-allowed",
+              minHeight: "90px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
             <span style={{
               position: "absolute", top: "10px", right: "10px",
               fontSize: "9px", background: "var(--border-color)",
               border: "1px solid var(--border-color)", color: "var(--text-muted)",
               padding: "2px 7px", borderRadius: "4px", letterSpacing: ".04em",
+              zIndex: 20
             }}>BIENTÔT</span>
             <span style={{ fontSize: "20px" }}>{item.icon}</span>
             <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-muted)", marginTop: "10px", lineHeight: 1.3 }}>
               {item.label}
             </div>
-          </div>
+          </GlareHover>
         ))}
       </div>
     </div>

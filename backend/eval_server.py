@@ -16,7 +16,8 @@ def patched_load_default_certs(self, *args, **kwargs):
 ssl.SSLContext.load_default_certs = patched_load_default_certs
 
 import torch
-
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import io, json, random, time
 from pathlib import Path
@@ -173,11 +174,11 @@ class BARTScorer:
     = meilleur). On fournit aussi une version normalisée exp(score) ∈ (0,1]."""
 
     def __init__(self, model_name: str = BARTSCORE_MODEL,
-                 device: str = DEVICE, max_length: int = BARTSCORE_MAXLEN):
-        self.device     = device
+                 device: str = None, max_length: int = BARTSCORE_MAXLEN):
+        self.device     = device if device else ("cuda" if torch.cuda.is_available() else "cpu")
         self.max_length = max_length
         self.tokenizer  = AutoTokenizer.from_pretrained(model_name)
-        self.model      = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(device)
+        self.model      = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(self.device)
         self.model.eval()
 
     @torch.no_grad()
@@ -404,10 +405,13 @@ def run_worker(api_url: str, summary_key: str, n_samples: int, split: str, model
             log(f"🧠 Calcul BERTScore batch sur {len(ok_items)} documents…")
             try:
                 chunk_size = 100
+                # Fallback to cpu if using directml because directml can deadlock bert_score
+                bert_device = "cuda" if torch.cuda.is_available() else "cpu"
                 for i in range(0, len(ok_items), chunk_size):
                     chk_refs = refs[i:i+chunk_size]
                     chk_hyps = hyps[i:i+chunk_size]
-                    P, R, F1 = bert_score_fn(chk_hyps, chk_refs, lang="fr", verbose=False, device=DEVICE)
+                    log(f"  Calcul BERTScore (batch {i//chunk_size + 1}, device={bert_device})...")
+                    P, R, F1 = bert_score_fn(chk_hyps, chk_refs, lang="fr", verbose=True, device=bert_device)
                     for r, p, rc, f in zip(ok_items[i:i+chunk_size], P.tolist(), R.tolist(), F1.tolist()):
                         r["bert_score"] = {
                             "precision": round(p,  4),

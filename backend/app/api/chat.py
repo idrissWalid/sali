@@ -17,7 +17,7 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     session_id: str
     message: str
-    model: Optional[str] = "gemini-3.1-flash-lite-preview"
+    model: Optional[str] = "gemma2:latest"
 
 class ChatResponse(BaseModel):
     response: str
@@ -51,7 +51,7 @@ Question : {request.message}
 Réponds uniquement à partir du document.
 """
         if not request.model or request.model.startswith("gemini"):
-            response = ask_gemini(prompt=prompt, history=history)
+            response = ask_gemini(prompt=prompt, history=history, model=request.model)
         else:
             from app.services.ollama_service import ask_ollama
             full_prompt = ""
@@ -66,7 +66,7 @@ Réponds uniquement à partir du document.
         data_context = get_data_context(request.session_id)
 
         # Détection d'intention par LLM
-        intent = detect_intent(request.message)
+        intent = detect_intent(request.message, request.model)
 
         if intent == "rapport":
             response = (
@@ -89,6 +89,7 @@ Réponds uniquement à partir du document.
                         prompt=request.message,
                         history=history,
                         data_context=data_context,
+                        model=request.model
                     )
                 else:
                     images = result["images"]
@@ -104,7 +105,7 @@ Résultat de l'analyse statistique : {raw_output}
 Présente ce résultat de façon claire et accessible en français (2-4 phrases).
 Ne répète pas les chiffres bruts si le résultat parle de lui-même — explique leur signification.
 """
-                    interpretation = ask_gemini(prompt=interp_prompt, history=history)
+                    interpretation = ask_gemini(prompt=interp_prompt, history=history, model=request.model)
                     # Combiner résultat brut + interprétation
                     response = f"{raw_output}\n\n---\n\n{interpretation}" if raw_output and raw_output != "Aucun résultat retourné." else interpretation
             else:
@@ -112,6 +113,7 @@ Ne répète pas les chiffres bruts si le résultat parle de lui-même — expliq
                     prompt=request.message,
                     history=history,
                     data_context=data_context,
+                    model=request.model
                 )
 
         # ── NOUVEAU : Séries temporelles via TimeCopilot ──
@@ -128,6 +130,7 @@ Ne répète pas les chiffres bruts si le résultat parle de lui-même — expliq
                         prompt=request.message,
                         history=history,
                         data_context=data_context,
+                        model=request.model
                     )
                 else:
                     images = result.get("images", [])
@@ -142,13 +145,14 @@ Résultat de l'analyse de séries temporelles : {raw_output}
 Présente ce résultat de façon claire et accessible en français (2-4 phrases).
 Explique les tendances temporelles ou les prévisions identifiées.
 """
-                    interpretation = ask_gemini(prompt=interp_prompt, history=history)
+                    interpretation = ask_gemini(prompt=interp_prompt, history=history, model=request.model)
                     response = f"{raw_output}\n\n---\n\n{interpretation}" if raw_output and raw_output != "Aucun résultat retourné." else interpretation
             else:
                 response = ask_gemini(
                     prompt=request.message,
                     history=history,
                     data_context=data_context,
+                    model=request.model
                 )
 
         elif intent in ("visualisation", "ml", "analyse"):
@@ -157,14 +161,14 @@ Explique les tendances temporelles ou les prévisions identifiées.
             # Générer le code selon l'intention
             spec = None
             if intent == "visualisation":
-                code = generate_visualization_code(request.message, data_context, history)
+                code = generate_visualization_code(request.message, data_context, history, model=request.model)
             elif intent == "ml":
-                family = detect_model_family(request.message)
+                family = detect_model_family(request.message, request.model)
                 spec = MODEL_SPECS[family]
-                code = generate_ml_code(request.message, data_context, family, history)
+                code = generate_ml_code(request.message, data_context, family, history, request.model)
             else:
                 # Analyse statistique avancée
-                code = generate_visualization_code(request.message, data_context, history)
+                code = generate_visualization_code(request.message, data_context, history, model=request.model)
 
             if code and file_bytes:
                 # Pipeline avec auto-correction → Docker sandbox
@@ -175,6 +179,7 @@ Explique les tendances temporelles ou les prévisions identifiées.
                     question=request.message,
                     data_context=data_context,
                     spec=spec,
+                    model=request.model,
                 )
 
                 if result["error"]:
@@ -209,13 +214,14 @@ Sortie texte du code : {result['output'] or 'Aucune.'}
 {"Un graphique a été généré." if images else ""}
 Rédige une interprétation concise et claire en 2-4 phrases.
 """
-                        response = ask_gemini(prompt=interp_prompt, history=history)
+                        response = ask_gemini(prompt=interp_prompt, history=history, model=request.model)
             else:
                 if not request.model or request.model.startswith("gemini"):
                     response = ask_gemini(
                         prompt=request.message,
                         history=history,
                         data_context=data_context,
+                        model=request.model
                     )
                 else:
                     from app.services.ollama_service import ask_ollama
@@ -233,6 +239,7 @@ Rédige une interprétation concise et claire en 2-4 phrases.
                     prompt=request.message,
                     history=history,
                     data_context=data_context,
+                    model=request.model
                 )
             else:
                 from app.services.ollama_service import ask_ollama

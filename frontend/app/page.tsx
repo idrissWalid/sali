@@ -33,8 +33,8 @@ export default function Home() {
   const [sessions, setSessions] = useState<SessionItem[]>([]);
   const [leftTab, setLeftTab] = useState<"sources" | "history">("sources");
   
-  const [models, setModels] = useState<string[]>(["gemini-3.1-flash-lite-preview"]);
-  const [selectedModel, setSelectedModel] = useState<string>("gemini-3.1-flash-lite-preview");
+  const [models, setModels] = useState<string[]>(["gemma2:latest"]);
+  const [selectedModel, setSelectedModel] = useState<string>("gemma2:latest");
 
   // Modal & Dropdown visibility states
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -210,29 +210,6 @@ export default function Home() {
         {/* Droite : boutons */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           
-          {/* Model Selector */}
-          <select 
-            value={selectedModel}
-            onChange={handleModelChange}
-            style={{
-              padding: "8px 12px",
-              borderRadius: "24px",
-              background: "var(--bubble-ai)",
-              border: "1px solid var(--border-color)",
-              color: "var(--text-main)",
-              fontFamily: "'Google Sans',sans-serif",
-              fontSize: "13px",
-              outline: "none",
-              cursor: "pointer",
-              width: "220px",
-              textOverflow: "ellipsis"
-            }}
-          >
-            {models.map(m => (
-              <option key={m} value={m}>{m}</option>
-            ))}
-          </select>
-
           {/* Theme Toggle */}
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -378,7 +355,16 @@ export default function Home() {
       </div>
 
       {/* Global Modals */}
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        models={models}
+        selectedModel={selectedModel}
+        onModelChange={(m) => {
+          setSelectedModel(m);
+          localStorage.setItem("selected_model", m);
+        }}
+      />
       <ShareModal isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} sourcesCount={sources.length} />
 
       {/* Confirmation Modal for Reset Session */}

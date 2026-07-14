@@ -18,11 +18,17 @@ async def list_llm_models():
         models = [line.split()[0] for line in lines if line]
     except Exception:
         models = []
-    models.insert(0, "gemini-3.1-flash-lite-preview")
+    # Set gemma as default if available
+    gemma_model = "gemma2:latest" if "gemma2:latest" in models else ("gemma:2b" if "gemma:2b" in models else "gemma")
+    if gemma_model in models:
+        models.remove(gemma_model)
+    models.insert(0, gemma_model)
+    if "gemini-3.1-flash-lite-preview" not in models:
+        models.append("gemini-3.1-flash-lite-preview")
     return {"models": models}
 
 @router.post("/upload")
-async def upload_file(file: UploadFile = File(...), model: str = Form("gemini-3.1-flash-lite-preview"), index_doc: str = Form("true")):
+async def upload_file(file: UploadFile = File(...), model: str = Form("gemma2:latest"), index_doc: str = Form("true")):
     async def event_generator():
         # Étape 1 : Lecture et détection du format
         yield json.dumps({
@@ -207,7 +213,7 @@ async def upload_file(file: UploadFile = File(...), model: str = Form("gemini-3.
                 [Propose 3 questions ou analyses pertinentes suggérées par ce document]
                 """
                 if not model or model.startswith("gemini"):
-                    summary = ask_gemini(summary_prompt)
+                    summary = ask_gemini(summary_prompt, model=model)
                 else:
                     summary = ask_ollama(summary_prompt, model=model)
                 add_to_history(session_id, "model", summary)
